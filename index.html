@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Gmail Generator Pro</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    text-align: center;
+}
+
+/* Popup */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-box {
+    background: #111;
+    padding: 25px;
+    border-radius: 15px;
+    width: 320px;
+    text-align: left;
+    box-shadow: 0 0 20px #00f7ff;
+}
+
+.popup-box h2 {
+    color: #00f7ff;
+    text-align: center;
+}
+
+.popup-box p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.popup-box button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Main */
+.container {
+    margin-top: 50px;
+}
+
+h1 {
+    color: #00f7ff;
+}
+
+input {
+    padding: 12px;
+    margin: 10px;
+    border: none;
+    border-radius: 8px;
+    width: 250px;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #00f7ff;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.email-box {
+    margin-top: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.email-item {
+    background: rgba(0,0,0,0.6);
+    padding: 12px;
+    margin: 8px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.copy-btn {
+    background: #ff9800;
+}
+</style>
+</head>
+
+<body>
+
+<!-- POPUP -->
+<div class="popup" id="popup">
+    <div class="popup-box">
+        <h2>📢 Hướng dẫn sử dụng</h2>
+
+        <p>
+        🔹 Nhập Gmail của bạn (ví dụ: abc@gmail.com)<br><br>
+        🔹 Nhập số lượng Gmail muốn tạo<br><br>
+        🔹 Bấm <b>Tạo Gmail</b> để tạo danh sách<br><br>
+        🔹 Các Gmail tạo ra là biến thể (alias), vẫn nhận mail về 1 hộp thư<br><br>
+        🔹 Có thể dùng để đăng ký nhiều tài khoản trên web<br><br>
+        🔹 Bấm <b>Copy</b> để sao chép từng Gmail<br><br>
+        🔹 Bấm <b>Copy All</b> để copy toàn bộ<br>
+        </p>
+
+        <label>
+            <input type="checkbox" id="dontShow">
+            Không hiện lại
+        </label>
+
+        <button onclick="closePopup()">Đóng</button>
+
+        <p style="text-align:center;margin-top:10px;color:#888;">
+            👑 Cre: Raven
+        </p>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+    <h1>Gmail Generator Pro</h1>
+
+    <input type="text" id="gmailInput" placeholder="Nhập Gmail của bạn">
+    <br>
+    <input type="number" id="amount" placeholder="Số lượng" value="20">
+    <br>
+
+    <button onclick="generate()">Tạo Gmail</button>
+    <button onclick="copyAll()">Copy All</button>
+
+    <div class="email-box" id="list"></div>
+</div>
+
+<script>
+
+let generatedList = [];
+
+/* Popup control */
+window.onload = () => {
+    if (localStorage.getItem("hidePopup") === "true") {
+        document.getElementById("popup").style.display = "none";
+    }
+};
+
+function closePopup() {
+    const dontShow = document.getElementById("dontShow").checked;
+
+    if (dontShow) {
+        localStorage.setItem("hidePopup", "true");
+    }
+
+    document.getElementById("popup").style.display = "none";
+}
+
+/* Generate Gmail */
+function generate() {
+    const input = document.getElementById("gmailInput").value.trim();
+    const amount = parseInt(document.getElementById("amount").value);
+    const list = document.getElementById("list");
+
+    list.innerHTML = "";
+    generatedList = [];
+
+    if (!input.endsWith("@gmail.com")) {
+        alert("Phải nhập Gmail!");
+        return;
+    }
+
+    let name = input.replace("@gmail.com", "");
+
+    for (let i = 0; i < amount; i++) {
+
+        let type = i % 2;
+        let newEmail;
+
+        if (type === 0) {
+            newEmail = name + "+" + i + "@gmail.com";
+        } else {
+            let pos = Math.floor(Math.random() * (name.length - 1)) + 1;
+            let newName = name.slice(0, pos) + "." + name.slice(pos);
+            newEmail = newName + "@gmail.com";
+        }
+
+        generatedList.push(newEmail);
+
+        let div = document.createElement("div");
+        div.className = "email-item";
+
+        let span = document.createElement("span");
+        span.innerText = newEmail;
+
+        let btn = document.createElement("button");
+        btn.innerText = "Copy";
+        btn.className = "copy-btn";
+
+        btn.onclick = () => {
+            navigator.clipboard.writeText(newEmail);
+            alert("Đã copy!");
+        };
+
+        div.appendChild(span);
+        div.appendChild(btn);
+        list.appendChild(div);
+    }
+}
+
+/* Copy all */
+function copyAll() {
+    if (generatedList.length === 0) {
+        alert("Chưa có gmail!");
+        return;
+    }
+
+    navigator.clipboard.writeText(generatedList.join("\n"));
+    alert("Đã copy tất cả!");
+}
+
+</script>
+
+</body>
+</html>
